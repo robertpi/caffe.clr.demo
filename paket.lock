@@ -1,11 +1,37 @@
 NUGET
   remote: https://www.nuget.org/api/v2
+    boost (1.62)
+    boost_date_time-vc120 (1.62)
+      boost (1.62)
+    caffe.clr (1.0)
+      boost
+      boost_date_time-vc120
+      gflags
+      glog
+      hdf5-v120-complete
+      LevelDB-vc120
+      lmdb-v120-clean
+      OpenBLAS
+      OpenCV
+      protobuf-v120
+      protoc_x64
     FSharp.Core (4.0.0.1) - redirects: force
+    gflags (2.1.2.1)
+    glog (0.3.3)
+      gflags (>= 2.0.1)
+    hdf5-v120-complete (1.8.15.2)
+    LevelDB-vc120 (1.2)
+      boost_date_time-vc120 (>= 1.59)
+    lmdb-v120-clean (0.9.14)
+    OpenBLAS (0.2.14.1)
+    OpenCV (2.4.10)
+    protobuf-v120 (2.6.1)
+    protoc_x64 (2.6.1)
 
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.38.3)
+    FAKE (4.46)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
@@ -18,12 +44,12 @@ NUGET
     Microsoft.Net.Http (2.2.29) - framework: net10, net11, net20, net30, net35, net40, net40-full
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
-    Octokit (0.21.1)
+    Octokit (0.23)
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (487d6a0dcf0f4b5450c9ce4cefa0a02b478166d9)
+    modules/Octokit/Octokit.fsx (1007029093164e0cde8dd6a1a12c0d81447b7ee8)
       Octokit (>= 0.20)
 GROUP Test
 NUGET
