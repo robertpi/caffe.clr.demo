@@ -16,6 +16,8 @@ open System.IO
 open SourceLink
 #endif
 
+let wc = new System.Net.WebClient()
+
 // --------------------------------------------------------------------------------------
 // START TODO: Provide project-specific details below
 // --------------------------------------------------------------------------------------
@@ -169,6 +171,62 @@ let dllOrPdb (file: string) =
 Target "CopyNativeDependencies" (fun _ ->
     nativeLocations
     |> Seq.iter (fun dir -> projects |> Seq.iter (fun proj ->  CopyDir (projectOutputFromProjFile proj) dir dllOrPdb))
+)
+
+// --------------------------------------------------------------------------------------
+// Download models
+
+let makeUrl = sprintf "http://dl.caffe.berkeleyvision.org/%s.caffemodel"
+
+Target "DownloadModels" (fun _ ->
+    Directory.GetDirectories("models")
+    |> Seq.iter (fun dir ->
+        let modelName = Path.GetFileName dir
+        logfn "Downloading %s ..." modelName
+        wc.DownloadFile(makeUrl modelName, sprintf @"models\%s\%s.caffemodel" modelName modelName)
+        logfn "Finished Downloading %s" modelName)
+)
+
+// --------------------------------------------------------------------------------------
+// Download data
+
+Target "DownloadData" (fun _ ->
+    ensureDirectory @"data\ilsvrc12"
+    logfn "Downloading data ..."
+    wc.DownloadFile("http://dl.caffe.berkeleyvision.org/caffe_ilsvrc12.tar.gz", @"data\ilsvrc12\caffe_ilsvrc12.tar.gz")
+    logfn "Unzipping data ..."
+    ArchiveHelper.Tar.GZip.Extract (directoryInfo @"data\ilsvrc12") (fileInfo @"data\ilsvrc12\caffe_ilsvrc12.tar.gz")
+    logfn "Finished Downloading"
+)
+
+// --------------------------------------------------------------------------------------
+// Execute
+
+let execProject path args =
+    ExecProcess (fun info ->
+        info.FileName <- path
+        info.WorkingDirectory <- Path.GetDirectoryName path
+        info.Arguments <- args)
+        (TimeSpan.FromMinutes 10.)
+
+// --------------------------------------------------------------------------------------
+// Execute classification
+
+let classificationArgs = @"..\..\models\bvlc_reference_caffenet\deploy.prototxt ..\..\models\bvlc_reference_caffenet\bvlc_reference_caffenet.caffemodel ..\..\data\ilsvrc12\imagenet_mean.binaryproto ..\..\data\ilsvrc12\synset_words.txt ..\..\data\maxcat.jpg"
+
+Target "ExecuteClassification" (fun _ ->
+    let res = execProject @"bin\classification\classification.exe" classificationArgs
+    if res <> 0 then failwith "non-zero exit code"
+)
+
+// --------------------------------------------------------------------------------------
+// Execute deep dream
+
+let deepDreamArgs = @"..\..\models\bvlc_googlenet\deploy.prototxt ..\..\models\bvlc_googlenet\bvlc_googlenet.caffemodel ..\..\data\ilsvrc12\imagenet_mean.binaryproto ..\..\data\maxcat.jpg"
+
+Target "ExecuteDeepDream" (fun _ ->
+    let res = execProject @"bin\deepdream\deepdream.exe" deepDreamArgs
+    if res <> 0 then failwith "non-zero exit code"
 )
 
 #if MONO
