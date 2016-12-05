@@ -7,17 +7,23 @@ module Classification =
     open System.Runtime.InteropServices
     open Caffe.Clr
 
-    let loadImageDotNet file (size: Size) meanFile (inputBlob: Blob) numChannels =
+    let loadImageIntoBlob file (size: Size) meanFile (inputBlob: Blob) numChannels =
+        // load the image into standard .NET bitmap object
         let bitmap = Image.FromFile(file) :?> Bitmap
 
+        // resize the image to the input blob
         let bitmap = new Bitmap(bitmap, size)
 
+        // convert image into an array in the format used by caffe
         let allChannels = DotNetImaging.formatBitmapAsBgrChannels bitmap
 
+        // load the mean file from the test data
         let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height 
 
-        ArrayHelpers.arrayAddInPlace mean allChannels
+        // apply the mean file to the channels
+        ArrayHelpers.arraySubInPlace mean allChannels
 
+        // set the channel data on the input blob
         inputBlob.SetData(allChannels)
 
     let loadModel modelFile trainedFile =
@@ -56,37 +62,6 @@ module Classification =
         for (percent, label) in results do
             printfn "%f %s" percent label
 
-    let loadImageIntoBlob file (size: Size) meanFile (inputBlob: Blob) numChannels =
-        let img = OpenCV.ImageRead(file, -1)
-
-        // resize the image if necessary
-        let imgResized =
-            if img.Width = size.Width && img.Height = size.Height then 
-                img
-            else
-                OpenCV.Resize(img, size.Width, size.Height)
-
-        let sampleFloat = imgResized.ConvertTo(RTypes.CV_32FC3)
-
-
-        // load the mean blob, calculated from the training data
-        let meanBlob = Blob.FromProtoFile(meanFile)
-
-        // check the mean blob has some number of channels as the input blob
-        assert (meanBlob.Shape(Shape.Channels) = inputBlob.Shape(Shape.Channels))
-
-        // calculate an overall mean from the mean blob and create a matrix from this
-        let mean = meanBlob.GetData()
-        let meanMatrix = OpenCV.MergeFloatArray(mean, numChannels, meanBlob.Shape(Shape.Width), meanBlob.Shape(Shape.Height))
-        let mean = OpenCV.Mean(meanMatrix)
-        let meanMatrix = Matrix.FromScalar(size.Height, size.Width, meanMatrix.Type(), mean)
-
-        // subtract the mean matrix from the sample float
-        let sampleNormalized = OpenCV.Subtract(sampleFloat, meanMatrix)
-
-        // load normalized values into the input blob
-        OpenCV.SplitToInputBlob(sampleNormalized, inputBlob)
-
     [<EntryPoint>]
     let main argv = 
         // unpack arguments related to the model
@@ -96,32 +71,35 @@ module Classification =
         let labelFile   = argv.[3]
 
         // unpack the argument for the files to be tested
-        let file = argv.[4]
+        let imageFilePath = argv.[4]
 
+        // three color images, so three channels in our matrix
         let numChannels = 3 
 
+        // process one image concurrently
+        let imagesToProcess = 1
+
+        // load the model and training data
         let net = loadModel modelFile trainedFile 
 
         // grab a reference to the input blob where will put the image
         let inputBlob = net.InputBlobs |> Seq.head
 
-        let size = new Size(inputBlob.Shape(Shape.Width), inputBlob.Shape(Shape.Height))
+        // size structure 
+        let blobSize = new Size(inputBlob.Shape(Shape.Width), inputBlob.Shape(Shape.Height))
 
-        // reshapre the input blob and network to suite out input image
-        inputBlob.Reshape([|1; numChannels; size.Width; size.Height|])
+        // reshapre the input blob and network to suite the number of images and channels we have
+        inputBlob.Reshape([|imagesToProcess; numChannels; blobSize.Width; blobSize.Height|])
         net.Reshape()
 
-        let useDotNet = true
-
-        if useDotNet then
-            loadImageDotNet file size meanFile inputBlob numChannels
-        else
-            loadImageIntoBlob file size meanFile inputBlob numChannels
+        // load the input image into the input blob
+        loadImageIntoBlob imageFilePath blobSize meanFile inputBlob numChannels
 
         // forward the data though the network
         let loss = ref 0.0f
         net.Forward(loss)
 
+        // print the results
         printOutput net labelFile
 
         // exit zero
