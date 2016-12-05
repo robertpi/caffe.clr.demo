@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\..\packages\protoc_x64\build\native\protoc_x64.props" Condition="Exists('..\..\..\packages\protoc_x64\build\native\protoc_x64.props')" Label="Paket" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>4f5d8207-e98e-4c1e-87b2-ed1f4627c0aa</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>classification</RootNamespace>
+    <AssemblyName>classification</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <Name>classification</Name>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>.\bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>.\bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
+    <OtherFlags>--warnon:1182</OtherFlags>
+    <StartArguments>"C:\code\mscaffe\models\bvlc_reference_caffenet\deploy.prototxt" "C:\code\mscaffe\models\bvlc_reference_caffenet\bvlc_reference_caffenet.caffemodel" "C:\code\mscaffe\data\ilsvrc12\imagenet_mean.binaryproto" "C:\code\mscaffe\windows\examples\fs_classification\synset_words.txt" C:\Users\rpickeri\Pictures\maxcat.jpg</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>.\bin\Release</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>.\bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
+    <OtherFlags>--warnon:1182</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <Choose>
+    <When Condition="true">
+      <PropertyGroup>
+        <__paket__protobuf-v120_targets>native\protobuf-v120</__paket__protobuf-v120_targets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="true">
+      <PropertyGroup>
+        <__paket__OpenCV_props>native\OpenCV</__paket__OpenCV_props>
+        <__paket__OpenCV_targets>native\OpenCV</__paket__OpenCV_targets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\..\packages\OpenCV\build\$(__paket__OpenCV_props).props" Condition="Exists('..\..\..\packages\OpenCV\build\$(__paket__OpenCV_props).props')" Label="Paket" />
+  <Choose>
+    <When Condition="true">
+      <PropertyGroup>
+        <__paket__LevelDB-vc120_targets>native\LevelDB-vc120</__paket__LevelDB-vc120_targets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="true">
+      <PropertyGroup>
+        <__paket__glog_props>native\glog</__paket__glog_props>
+        <__paket__glog_targets>native\glog</__paket__glog_targets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\..\packages\glog\build\$(__paket__glog_props).props" Condition="Exists('..\..\..\packages\glog\build\$(__paket__glog_props).props')" Label="Paket" />
+  <Choose>
+    <When Condition="true">
+      <PropertyGroup>
+        <__paket__gflags_props>native\gflags</__paket__gflags_props>
+        <__paket__gflags_targets>native\gflags</__paket__gflags_targets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\..\packages\gflags\build\$(__paket__gflags_props).props" Condition="Exists('..\..\..\packages\gflags\build\$(__paket__gflags_props).props')" Label="Paket" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <Import Project="..\..\..\.paket\paket.targets" />
+  <Choose>
+    <When Condition="'$(Platform)'=='Win32'">
+      <ItemGroup>
+        <NativeReference Include="boost_date_time-vc120-mt-1_62">
+          <HintPath>..\..\..\packages\boost_date_time-vc120\lib\native\address-model-32\lib\boost_date_time-vc120-mt-1_62.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </NativeReference>
+        <NativeReference Include="boost_date_time-vc120-mt-gd-1_62">
+          <HintPath>..\..\..\packages\boost_date_time-vc120\lib\native\address-model-32\lib\boost_date_time-vc120-mt-gd-1_62.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </NativeReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(Platform)'=='x64'">
+      <ItemGroup>
+        <NativeReference Include="boost_date_time-vc120-mt-1_62">
+          <HintPath>..\..\..\packages\boost_date_time-vc120\lib\native\address-model-64\lib\boost_date_time-vc120-mt-1_62.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </NativeReference>
+        <NativeReference Include="boost_date_time-vc120-mt-gd-1_62">
+          <HintPath>..\..\..\packages\boost_date_time-vc120\lib\native\address-model-64\lib\boost_date_time-vc120-mt-gd-1_62.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </NativeReference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
+      <ItemGroup>
+        <Reference Include="caffe.clr">
+          <HintPath>..\..\..\packages\caffe.clr\lib\net452\caffe.clr.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="..\..\..\packages\boost\build\native\boost.targets" Condition="Exists('..\..\..\packages\boost\build\native\boost.targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\boost_date_time-vc120\build\native\boost_date_time-vc120.targets" Condition="Exists('..\..\..\packages\boost_date_time-vc120\build\native\boost_date_time-vc120.targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\gflags\build\$(__paket__gflags_targets).targets" Condition="Exists('..\..\..\packages\gflags\build\$(__paket__gflags_targets).targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\glog\build\$(__paket__glog_targets).targets" Condition="Exists('..\..\..\packages\glog\build\$(__paket__glog_targets).targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\hdf5-v120-complete\build\native\hdf5-v120.targets" Condition="Exists('..\..\..\packages\hdf5-v120-complete\build\native\hdf5-v120.targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\LevelDB-vc120\build\$(__paket__LevelDB-vc120_targets).targets" Condition="Exists('..\..\..\packages\LevelDB-vc120\build\$(__paket__LevelDB-vc120_targets).targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\lmdb-v120-clean\build\native\lmdb-v120-clean.targets" Condition="Exists('..\..\..\packages\lmdb-v120-clean\build\native\lmdb-v120-clean.targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\OpenBLAS\build\native\openblas.targets" Condition="Exists('..\..\..\packages\OpenBLAS\build\native\openblas.targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\OpenCV\build\$(__paket__OpenCV_targets).targets" Condition="Exists('..\..\..\packages\OpenCV\build\$(__paket__OpenCV_targets).targets')" Label="Paket" />
+  <Import Project="..\..\..\packages\protobuf-v120\build\$(__paket__protobuf-v120_targets).targets" Condition="Exists('..\..\..\packages\protobuf-v120\build\$(__paket__protobuf-v120_targets).targets')" Label="Paket" />
+  <ItemGroup>
+    <None Include="paket.references" />
+    <Content Include="App.config" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+</Project>
