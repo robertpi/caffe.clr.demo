@@ -16,6 +16,8 @@ NUGET
       protobuf-v120
       protoc_x64
     FSharp.Core (4.0.0.1) - redirects: force
+    FSharp.Data (2.3.2)
+      Zlib.Portable (>= 1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
     gflags (2.1.2.1)
     glog (0.3.3)
       gflags (>= 2.0.1)
@@ -27,6 +29,7 @@ NUGET
     OpenCV (2.4.10)
     protobuf-v120 (2.6.1)
     protoc_x64 (2.6.1)
+    Zlib.Portable (1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
 
 GROUP Build
 NUGET

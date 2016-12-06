@@ -8,9 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B
 		paket.lock = paket.lock
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "classification", "src\finished\classification\classification.fsproj", "{4F5D8207-E98E-4C1E-87B2-ED1F4627C0AA}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "classification", "src\classification\classification.fsproj", "{4F5D8207-E98E-4C1E-87B2-ED1F4627C0AA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,19 +17,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{83F16175-43B1-4C90-A1EE-8E351C33435D}"
-	ProjectSection(SolutionItems) = preProject
-		docs\tools\generate.fsx = docs\tools\generate.fsx
-		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
-	EndProjectSection
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "deepdream", "src\deepdream\deepdream.fsproj", "{A6C7001B-76DC-4733-A3D9-D90B5B61925A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D5255-776D-4B61-85F9-73C37AA1FB9A}"
-	ProjectSection(SolutionItems) = preProject
-		docs\content\index.fsx = docs\content\index.fsx
-		docs\content\tutorial.fsx = docs\content\tutorial.fsx
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{F327EC05-549E-406D-9087-CE04D7AF14FC}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "deepdream", "src\finished\deepdream\deepdream.fsproj", "{A6C7001B-76DC-4733-A3D9-D90B5B61925A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{13FCEF4E-96D3-44F1-97B7-7882D74F4C52}"
+	ProjectSection(SolutionItems) = preProject
+		data\scripts\animatedGifs.fsx = data\scripts\animatedGifs.fsx
+		data\scripts\flickr.fsx = data\scripts\flickr.fsx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,7 +66,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{83F16175-43B1-4C90-A1EE-8E351C33435D} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
-		{8E6D5255-776D-4B61-85F9-73C37AA1FB9A} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
+		{13FCEF4E-96D3-44F1-97B7-7882D74F4C52} = {F327EC05-549E-406D-9087-CE04D7AF14FC}
 	EndGlobalSection
 EndGlobal
