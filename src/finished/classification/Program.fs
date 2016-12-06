@@ -20,7 +20,7 @@ module Classification =
         // load the mean file from the test data
         let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height 
 
-        // apply the mean file to the channels
+        // subtract the mean value from the channel values
         ArrayHelpers.arraySubInPlace mean allChannels
 
         // set the channel data on the input blob

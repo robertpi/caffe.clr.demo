@@ -6,25 +6,39 @@ open System.Drawing.Imaging
 open System.Runtime.InteropServices
 open Caffe.Clr
 
+// three color images, so three channels in our matrix
 let numChannels = 3
 
+// initalize the random number generators
 let rnd = new Random()
 
+// helper function to time execution
 let time name func =
     let clock = Stopwatch.StartNew()
     let result = func()
     printfn "%s time taken: %O" name clock.Elapsed
     result
 
-let numberedFileName filepath (layer: string) extraPart i =
+let getOutputFileName filepath (layer: string) extraPart i =
     let directory = Path.GetDirectoryName(filepath)
     let filename = Path.GetFileNameWithoutExtension(filepath)
     let ext = Path.GetExtension(filepath)
     let layerSafe = layer.Replace("/", "-")
     Path.Combine(directory, sprintf "%s_%s_%s%i%s" filename layerSafe extraPart i ext)
 
+let loadModel modelFile trainedFile =
+    // load the network and training data
+    let net = new Net(modelFile, Phase.Test)
+    net.CopyTrainedLayersFrom(trainedFile)
+
+    // check the network has the right number of inputs/outputs
+    assert (net.InputBlobs.Count = 1)
+    assert (net.OutputBlobs.Count = 1)
+
+    net 
+
 // iterates for over a given matrix, each pass highlights what is recongized
-let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer: string) (outputBlob: Blob) mean =
+let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer: string) (outputBlob: Blob) =
     time "makeStep" (fun () -> 
 
         // first add the data to the blob
@@ -45,11 +59,11 @@ let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer:
             outputBlob.SetDiff(outputBlob.GetData())
             net.BackwardFrom(layer)
 
-            // the inputBlob's diff now contains what the net has reconized
+            // the inputBlob's diff now contains what the net has recognized
             let inputData = inputBlob.GetData()
             let inputDiff = inputBlob.GetDiff()
 
-            // apply the reconized data to the image data
+            // apply the recognized data to the image data
             let absMean = inputDiff |> Seq.map Math.Abs |> Seq.average
             let inputData' =
                 Seq.zip inputData inputDiff 
@@ -65,22 +79,46 @@ let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer:
         // at the end of the interatiosn retun the image data
         inputBlob.GetData())
 
+let loadImageIntoArray imgFile meanFile =
+    // load the image into standard .NET bitmap object
+    let bitmap = Image.FromFile(imgFile) :?> Bitmap
+
+    // resize the bitmap so the long edge is no larger that 1000 pixels
+    let bitmapResized = DotNetImaging.resizeBitmap bitmap 1000.
+
+    // convert image into an array in the format used by caffe
+    let allChannels = DotNetImaging.formatBitmapAsBgrChannels bitmapResized
+
+    // get the size of the image
+    let size = bitmapResized.Size
+
+    // load the mean file from the test data
+    let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height
+
+    // subtract the mean value from the channel values
+    ArrayHelpers.arraySubInPlace mean allChannels
+
+    // return the size, mean and channel data
+    size, mean, allChannels
+
+let clipActionUnclip subMatrix zoomWidth zoomHeight action =
+    let subMatrix' = PseudoMatrices.splitClipSquareCombine zoomWidth zoomHeight subMatrix
+    let result = action subMatrix'
+    let unclippedResult = PseudoMatrices.splitUnclipSquareCombine zoomWidth zoomHeight result subMatrix
+    unclippedResult
+
 let makeDreamForLayer layer  imgFile meanFile (net: Net) (inputBlob: Blob) =
     // get a reference to the bolb of the output layer
     let outputBlobOpt = net.BlobByName(layer)
 
     match outputBlobOpt with
     | Some outputBlob ->
-        // load the image bitmap and format it correctly for the net
-        let bitmap = Image.FromFile(imgFile) :?> Bitmap
-        let bitmapResized = DotNetImaging.resizeBitmap bitmap 1000.
-        let allChannels = DotNetImaging.formatBitmapAsBgrChannels bitmapResized
-        let size = bitmapResized.Size
-        let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height
-        ArrayHelpers.arraySubInPlace mean allChannels
+
+        //load the image into an array formatted for use with caffe
+        let size, mean, allChannels = loadImageIntoArray imgFile meanFile
 
         // zoom over different levels of the image to help the net find different element
-        for zoomFactor in 4 .. -1 .. 2  do
+        for zoomFactor in 4 .. -1 .. 1  do
 
             time (sprintf "zoom %i" zoomFactor) (fun () ->
 
@@ -95,40 +133,35 @@ let makeDreamForLayer layer  imgFile meanFile (net: Net) (inputBlob: Blob) =
                 inputBlob.Reshape([|1; numChannels; edgeLength; edgeLength|])
                 net.Reshape()
 
-                let processSubMatrix subMatrix =
-                    let subMatrix' = PseudoMatrices.splitClipSquareCombine zoomWidth zoomHeight subMatrix
-                    let result = makeStep  net inputBlob edgeLength edgeLength subMatrix' layer outputBlob mean
+                let processMatrix subMatrix =
+                    let clippedMatrix = PseudoMatrices.splitClipSquareCombine zoomWidth zoomHeight subMatrix
+                    let result = makeStep net inputBlob edgeLength edgeLength clippedMatrix layer outputBlob
                     let unclippedResult = PseudoMatrices.splitUnclipSquareCombine zoomWidth zoomHeight result subMatrix
                     unclippedResult
 
                 // run the highlight over each zoomed image piece
                 let treadedParts =
-                    Array.map processSubMatrix subMatrices 
+                    Array.map processMatrix subMatrices 
 
                 // put the image back together and save
                 PseudoMatrices.unzoom zoomFactor size.Width size.Height treadedParts allChannels
                 let imageToSave = ArrayHelpers.arrayAdd mean allChannels
-                DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" zoomFactor) size)
-
-        time "final pass" (fun () ->
-            // make a final pass over the unzoomed image
-            inputBlob.Reshape([|1; numChannels; size.Width; size.Height |])
-            net.Reshape()
-            let finalLayer = makeStep  net inputBlob size.Width size.Height allChannels layer outputBlob mean
-            let imageToSave = ArrayHelpers.arrayAdd mean finalLayer
-            DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" 1) size)
+                DotNetImaging.saveImageDotNet imageToSave (getOutputFileName imgFile layer "" zoomFactor) size)
 
     | None -> printfn "Layer %s has no blob" layer
 
 
 [<EntryPoint>]
 let main argv = 
+    // unpack arguments related to the model
     let modelFile   = argv.[0]
     let trainedFile = argv.[1]
     let meanFile    = argv.[2]
 
     // unpack the argument for the files to be tested
     let imgFile = argv.[3]
+
+    // unpack the layer argument
     let layer = 
         if argv.Length > 4 then argv.[4]
         else "inception_4c/output"
@@ -141,8 +174,7 @@ let main argv =
     time "main" (fun () ->
 
         // load the net's model and import the train data
-        let net = new Net(modelFile, Phase.Train)
-        net.CopyTrainedLayersFrom(trainedFile)
+        let net = loadModel modelFile trainedFile
 
         // get the input blob where we'll put the image data
         let inputBlob = net.InputBlobs |> Seq.head

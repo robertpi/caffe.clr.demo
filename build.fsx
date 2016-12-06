@@ -163,7 +163,8 @@ let nativeLocations =
       "packages/OpenBLAS/lib/native/bin/x64";
       "lib/OpenCV"; 
       "lib/glog"; 
-      "lib/gflags"; ]
+      "lib/gflags"; 
+      "lib/cudnn"; ]
 
 let dllOrPdb (file: string) = 
     file.EndsWith ".dll" || file.EndsWith ".pdb" 
@@ -262,5 +263,11 @@ Target "All" DoNothing
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
   ==> "All"
+
+"All"
+  ==> "ExecuteClassification"
+
+"All"
+  ==> "ExecuteDeepDream"
 
 RunTargetOrDefault "All"
