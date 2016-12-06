@@ -25,7 +25,7 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>.\bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
     <OtherFlags>--warnon:1182</OtherFlags>
-    <StartArguments>"C:\code\mscaffe\models\bvlc_reference_caffenet\deploy.prototxt" "C:\code\mscaffe\models\bvlc_reference_caffenet\bvlc_reference_caffenet.caffemodel" "C:\code\mscaffe\data\ilsvrc12\imagenet_mean.binaryproto" "C:\code\mscaffe\windows\examples\fs_classification\synset_words.txt" C:\Users\rpickeri\Pictures\maxcat.jpg</StartArguments>
+    <StartArguments>..\..\..\..\models\bvlc_googlenet\deploy.prototxt ..\..\..\..\models\bvlc_googlenet\bvlc_googlenet.caffemodel ..\..\..\..\data\ilsvrc12\imagenet_mean.binaryproto ..\..\..\..\data\maxcat.jpg</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -228,4 +228,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>cd $(ProjectDir)..\..\
+build.cmd CopyNativeDependenciesLocal builddir=$(TargetDir)</PreBuildEvent>
+  </PropertyGroup>
 </Project>

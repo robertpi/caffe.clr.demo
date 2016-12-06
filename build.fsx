@@ -174,6 +174,13 @@ Target "CopyNativeDependencies" (fun _ ->
     |> Seq.iter (fun dir -> projects |> Seq.iter (fun proj ->  CopyDir (projectOutputFromProjFile proj) dir dllOrPdb))
 )
 
+
+Target "CopyNativeDependenciesLocal" (fun _ ->
+    let buildDir = getBuildParamOrDefault "builddir" "./unknown"
+    nativeLocations
+    |> Seq.iter (fun dir -> projects |> Seq.iter (fun proj ->  CopyDir buildDir dir dllOrPdb))
+)
+
 // --------------------------------------------------------------------------------------
 // Download models
 
