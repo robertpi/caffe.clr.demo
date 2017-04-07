@@ -161,6 +161,7 @@ let nativeLocations =
       "packages/hdf5-v120-complete/lib/native/bin/x64";
       "packages/lmdb-v120-clean/lib/native/bin/x64";
       "packages/OpenBLAS/lib/native/bin/x64";
+      "packages/SimpleVideoEncoder/lib";
       "lib/OpenCV"; 
       "lib/glog"; 
       "lib/gflags"; 
@@ -265,14 +266,7 @@ Target "All" DoNothing
   ==> "Build"
   ==> "CopyBinaries"
   ==> "CopyNativeDependencies"
-#if MONO
-#else
-  =?> ("SourceLink", Pdbstr.tryFind().IsSome )
-#endif
   ==> "All"
-
-"All"
-  ==> "ExecuteClassification"
 
 "All"
   ==> "ExecuteDeepDream"

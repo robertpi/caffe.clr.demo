@@ -1,10 +1,12 @@
 ﻿open System
+open System.Collections.Generic
 open System.IO
 open System.Diagnostics
 open System.Drawing
 open System.Drawing.Imaging
 open System.Runtime.InteropServices
 open Caffe.Clr
+open SimpleVideoEncoder
 
 // three color images, so three channels in our matrix
 let numChannels = 3
@@ -37,12 +39,37 @@ let loadModel modelFile trainedFile =
 
     net 
 
+let createBitmap (data: float32[]) file (size: Size) =
+    let bitmap = new Bitmap(size.Width, size.Height)
+
+    let b, g, r = PseudoMatrices.splitChannels data
+
+    let rgb = Seq.zip3 r g b 
+
+    rgb |> Seq.iteri (fun i (r, g, b)  ->
+        let x = i % size.Width
+        let y = i / size.Width
+        let intMax255 x =
+            max (min (int x) 255) 0
+        let p = Color.FromArgb(intMax255 r, intMax255 g, intMax255 b)
+        bitmap.SetPixel(x, y, p))
+
+    bitmap
+
+let drawTextAndBox (g: Graphics) text fontSize left top =
+    let font = new Font("Calibri", fontSize)
+    let size = g.MeasureString(text, font)
+    g.FillRectangle(new SolidBrush(Color.FromArgb(128, 255, 255, 255)), left - 12, top - 12, int size.Width + 24, int size.Height + 18)
+    g.DrawString(text, font, Brushes.Black, float32 left, float32 top)
+
 // iterates for over a given matrix, each pass highlights what is recongized
-let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer: string) (outputBlob: Blob) mean imgFile =
+let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer: string) text (outputBlob: Blob) mean imgFile (video: VideoEncoder) =
     time "makeStep" (fun () -> 
 
         // first add the data to the blob
         inputBlob.SetData(data)
+
+        let imageStack = new Stack<Bitmap>()
 
         for i in 1 .. 150 do
             // first get the blobs data
@@ -54,7 +81,7 @@ let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer:
             inputBlob.SetData(inputData)
 
             // forward to a given layer, set that layers target (the diff)
-            // the propergate the data back the inputBlob
+            // the propagate the data back the inputBlob
             net.ForwardTo(layer) |> ignore
             outputBlob.SetDiff(outputBlob.GetData())
             net.BackwardFrom(layer)
@@ -76,8 +103,22 @@ let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer:
             // set the data read for the next pass
             inputBlob.SetData(inputData'')
 
-//            let imageToSave = ArrayHelpers.arrayAdd mean inputData''
-//            DotNetImaging.saveImageDotNet imageToSave (getOutputFileName imgFile layer "" i) (new Size(width, height))
+            if i % 5 = 0 then
+                let imageToSave = ArrayHelpers.arrayAdd mean inputData''
+                let bitmap = createBitmap imageToSave (getOutputFileName imgFile layer "" i) (new Size(width, height))
+                use g = Graphics.FromImage(bitmap)
+                drawTextAndBox g text 22.f 24 24
+                drawTextAndBox g (sprintf "layer: %s" layer) 16.f 24 (height - 48)
+                imageStack.Push(bitmap.Clone() :?> Bitmap)
+                video.AddFrame(bitmap)
+
+        let rec loop() =
+            if imageStack.Count > 0 then
+                let bitmap = imageStack.Pop()
+                video.AddFrame(bitmap)
+                loop()
+
+        loop()
 
         // at the end of the interatiosn retun the image data
         inputBlob.GetData())
@@ -110,7 +151,7 @@ let clipActionUnclip subMatrix zoomWidth zoomHeight action =
     let unclippedResult = PseudoMatrices.splitUnclipSquareCombine zoomWidth zoomHeight result subMatrix
     unclippedResult
 
-let makeDreamForLayer layer  imgFile meanFile (net: Net) (inputBlob: Blob) =
+let makeDreamForLayer layer text imgFile meanFile (net: Net) (inputBlob: Blob) (video: VideoEncoder) =
     // get a reference to the bolb of the output layer
     let outputBlobOpt = net.BlobByName(layer)
 
@@ -138,7 +179,7 @@ let makeDreamForLayer layer  imgFile meanFile (net: Net) (inputBlob: Blob) =
 
                 let processMatrix subMatrix =
                     let clippedMatrix = PseudoMatrices.splitClipSquareCombine zoomWidth zoomHeight subMatrix
-                    let result = makeStep net inputBlob edgeLength edgeLength clippedMatrix layer outputBlob mean imgFile
+                    let result = makeStep net inputBlob edgeLength edgeLength clippedMatrix layer text outputBlob mean imgFile video
                     let unclippedResult = PseudoMatrices.splitUnclipSquareCombine zoomWidth zoomHeight result subMatrix
                     unclippedResult
 
@@ -165,10 +206,16 @@ let main argv =
     // unpack the argument for the files to be tested
     let imgFile = argv.[3]
 
-    // unpack the layer argument
-    let layer = 
-        if argv.Length > 4 then argv.[4]
-        else "inception_4c/output"
+    let layers = 
+        [ "conv1/7x7_s2", "This is Deep Dream"
+          "conv2/3x3", "images generated by ..."
+          "inception_3a/1x1", "neural networks."
+          "inception_3a/output", "Each sequence is ..."
+          "inception_3b/output", "generated by ..."
+          "inception_4a/output", "a different layer."
+          "inception_4b/output", "Come see how ..."
+          "inception_4c/output", "at F# exchange."
+          "inception_5b/output", "London, 6th-7th April" ]
 
 // uncomment to run on the GPU, can make quite a difference!
     Caffe.SetMode Brew.GPU
@@ -183,12 +230,10 @@ let main argv =
         // get the input blob where we'll put the image data
         let inputBlob = net.InputBlobs |> Seq.head
 
-        if layer = "*" then
-            for layer in net.LayerNames |> Seq.filter(fun layer -> layer <> "data")  do
-                printfn "starting %s layer ..." layer
-                makeDreamForLayer layer imgFile meanFile net inputBlob 
-        else
-                makeDreamForLayer layer imgFile meanFile net inputBlob)
+        use video = new VideoEncoder(Path.ChangeExtension(imgFile, "mp4"), 664, 664)
+
+        for (layer, text) in layers do
+            makeDreamForLayer layer text imgFile meanFile net inputBlob video)
 
 
     0 // return an integer exit code

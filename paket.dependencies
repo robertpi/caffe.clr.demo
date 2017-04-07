@@ -3,6 +3,7 @@ source https://nuget.org/api/v2
 nuget FSharp.Core redirects: force
 nuget FSharp.Data
 nuget caffe.clr
+nuget SimpleVideoEncoder ~> 1.1
 
 group Build
   source https://nuget.org/api/v2

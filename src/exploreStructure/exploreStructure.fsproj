@@ -6,10 +6,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>4f5d8207-e98e-4c1e-87b2-ed1f4627c0aa</ProjectGuid>
+    <ProjectGuid>{b04df22f-6e65-4ea1-8867-d867c8f5ae40}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>classification</RootNamespace>
-    <AssemblyName>classification</AssemblyName>
+    <AssemblyName>exploreStructure</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>classification</Name>
@@ -25,7 +25,7 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>.\bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
     <OtherFlags>--warnon:1182</OtherFlags>
-    <StartArguments>..\..\..\..\models\bvlc_reference_caffenet\deploy.prototxt ..\..\..\..\models\bvlc_reference_caffenet\bvlc_reference_caffenet.caffemodel ..\..\..\..\data\ilsvrc12\imagenet_mean.binaryproto ..\..\..\..\data\ilsvrc12\synset_words.txt ..\..\..\..\data\maxcat.jpg</StartArguments>
+    <StartArguments>..\..\..\..\models\bvlc_googlenet\deploy.prototxt ..\..\..\..\models\bvlc_reference_caffenet\bvlc_reference_caffenet.caffemodel ..\..\..\..\data\ilsvrc12\imagenet_mean.binaryproto ..\..\..\..\data\ilsvrc12\synset_words.txt ..\..\..\..\data\maxcat.jpg</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -102,6 +102,10 @@
   </Target>
   -->
   <Import Project="..\..\.paket\paket.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>cd $(ProjectDir)..\..\
+build.cmd CopyNativeDependenciesLocal builddir=$(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
     <Content Include="App.config" />
@@ -117,10 +121,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>cd $(ProjectDir)..\..\
-build.cmd CopyNativeDependenciesLocal builddir=$(TargetDir)</PostBuildEvent>
-  </PropertyGroup>
   <Choose>
     <When Condition="'$(Platform)'=='Win32'">
       <ItemGroup>

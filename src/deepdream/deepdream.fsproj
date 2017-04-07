@@ -102,6 +102,25 @@
   </Target>
   -->
   <Import Project="..\..\.paket\paket.targets" />
+  <ItemGroup>
+    <None Include="paket.references" />
+    <Content Include="App.config" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>cd $(ProjectDir)..\..\
+build.cmd CopyNativeDependenciesLocal builddir=$(TargetDir)</PreBuildEvent>
+  </PropertyGroup>
   <Choose>
     <When Condition="'$(Platform)'=='Win32'">
       <ItemGroup>
@@ -148,22 +167,19 @@
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="..\..\packages\boost\build\native\boost.targets" Condition="Exists('..\..\packages\boost\build\native\boost.targets')" Label="Paket" />
-  <Import Project="..\..\packages\boost_date_time-vc120\build\native\boost_date_time-vc120.targets" Condition="Exists('..\..\packages\boost_date_time-vc120\build\native\boost_date_time-vc120.targets')" Label="Paket" />
-  <Import Project="..\..\packages\gflags\build\$(__paket__gflags_targets).targets" Condition="Exists('..\..\packages\gflags\build\$(__paket__gflags_targets).targets')" Label="Paket" />
-  <Import Project="..\..\packages\glog\build\$(__paket__glog_targets).targets" Condition="Exists('..\..\packages\glog\build\$(__paket__glog_targets).targets')" Label="Paket" />
-  <Import Project="..\..\packages\hdf5-v120-complete\build\native\hdf5-v120.targets" Condition="Exists('..\..\packages\hdf5-v120-complete\build\native\hdf5-v120.targets')" Label="Paket" />
-  <Import Project="..\..\packages\LevelDB-vc120\build\$(__paket__LevelDB-vc120_targets).targets" Condition="Exists('..\..\packages\LevelDB-vc120\build\$(__paket__LevelDB-vc120_targets).targets')" Label="Paket" />
-  <Import Project="..\..\packages\lmdb-v120-clean\build\native\lmdb-v120-clean.targets" Condition="Exists('..\..\packages\lmdb-v120-clean\build\native\lmdb-v120-clean.targets')" Label="Paket" />
-  <Import Project="..\..\packages\OpenBLAS\build\native\openblas.targets" Condition="Exists('..\..\packages\OpenBLAS\build\native\openblas.targets')" Label="Paket" />
-  <Import Project="..\..\packages\OpenCV\build\$(__paket__OpenCV_targets).targets" Condition="Exists('..\..\packages\OpenCV\build\$(__paket__OpenCV_targets).targets')" Label="Paket" />
-  <Import Project="..\..\packages\protobuf-v120\build\$(__paket__protobuf-v120_targets).targets" Condition="Exists('..\..\packages\protobuf-v120\build\$(__paket__protobuf-v120_targets).targets')" Label="Paket" />
   <ItemGroup>
-    <None Include="paket.references" />
-    <Content Include="App.config" />
-    <Compile Include="Program.fs" />
+    <NativeReference Include="hdf5">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
     <NativeReference Include="hdf5">
       <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x86\hdf5.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_cpp">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_cpp.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </NativeReference>
@@ -173,7 +189,17 @@
       <Paket>True</Paket>
     </NativeReference>
     <NativeReference Include="hdf5_f90cstub">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_f90cstub.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_f90cstub">
       <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x86\hdf5_f90cstub.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_fortran">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_fortran.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </NativeReference>
@@ -183,7 +209,17 @@
       <Paket>True</Paket>
     </NativeReference>
     <NativeReference Include="hdf5_hl">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_hl.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_hl">
       <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x86\hdf5_hl.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_hl_cpp">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_hl_cpp.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </NativeReference>
@@ -193,7 +229,17 @@
       <Paket>True</Paket>
     </NativeReference>
     <NativeReference Include="hdf5_hl_f90cstub">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_hl_f90cstub.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_hl_f90cstub">
       <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x86\hdf5_hl_f90cstub.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_hl_fortran">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_hl_fortran.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </NativeReference>
@@ -203,12 +249,27 @@
       <Paket>True</Paket>
     </NativeReference>
     <NativeReference Include="hdf5_tools">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\hdf5_tools.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="hdf5_tools">
       <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x86\hdf5_tools.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </NativeReference>
     <NativeReference Include="szip">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\szip.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="szip">
       <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x86\szip.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="zlib">
+      <HintPath>..\..\packages\hdf5-v120-complete\lib\native\bin\x64\zlib.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </NativeReference>
@@ -219,17 +280,47 @@
     </NativeReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <NativeReference Include="lmdb">
+      <HintPath>..\..\packages\lmdb-v120-clean\lib\native\bin\x64\lmdb.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" />
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="lmdbD">
+      <HintPath>..\..\packages\lmdb-v120-clean\lib\native\bin\x64\lmdbD.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
   </ItemGroup>
-  <PropertyGroup>
-    <PreBuildEvent>cd $(ProjectDir)..\..\
-build.cmd CopyNativeDependenciesLocal builddir=$(TargetDir)</PreBuildEvent>
-  </PropertyGroup>
+  <ItemGroup>
+    <NativeReference Include="libgcc_s_seh-1">
+      <HintPath>..\..\packages\OpenBLAS\lib\native\bin\x64\libgcc_s_seh-1.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="libgfortran-3">
+      <HintPath>..\..\packages\OpenBLAS\lib\native\bin\x64\libgfortran-3.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="libopenblas">
+      <HintPath>..\..\packages\OpenBLAS\lib\native\bin\x64\libopenblas.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+    <NativeReference Include="libquadmath-0">
+      <HintPath>..\..\packages\OpenBLAS\lib\native\bin\x64\libquadmath-0.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </NativeReference>
+  </ItemGroup>
+  <Import Project="..\..\packages\boost\build\native\boost.targets" Condition="Exists('..\..\packages\boost\build\native\boost.targets')" Label="Paket" />
+  <Import Project="..\..\packages\boost_date_time-vc120\build\native\boost_date_time-vc120.targets" Condition="Exists('..\..\packages\boost_date_time-vc120\build\native\boost_date_time-vc120.targets')" Label="Paket" />
+  <Import Project="..\..\packages\gflags\build\$(__paket__gflags_targets).targets" Condition="Exists('..\..\packages\gflags\build\$(__paket__gflags_targets).targets')" Label="Paket" />
+  <Import Project="..\..\packages\glog\build\$(__paket__glog_targets).targets" Condition="Exists('..\..\packages\glog\build\$(__paket__glog_targets).targets')" Label="Paket" />
+  <Import Project="..\..\packages\hdf5-v120-complete\build\native\hdf5-v120.targets" Condition="Exists('..\..\packages\hdf5-v120-complete\build\native\hdf5-v120.targets')" Label="Paket" />
+  <Import Project="..\..\packages\LevelDB-vc120\build\$(__paket__LevelDB-vc120_targets).targets" Condition="Exists('..\..\packages\LevelDB-vc120\build\$(__paket__LevelDB-vc120_targets).targets')" Label="Paket" />
+  <Import Project="..\..\packages\lmdb-v120-clean\build\native\lmdb-v120-clean.targets" Condition="Exists('..\..\packages\lmdb-v120-clean\build\native\lmdb-v120-clean.targets')" Label="Paket" />
+  <Import Project="..\..\packages\OpenBLAS\build\native\openblas.targets" Condition="Exists('..\..\packages\OpenBLAS\build\native\openblas.targets')" Label="Paket" />
+  <Import Project="..\..\packages\OpenCV\build\$(__paket__OpenCV_targets).targets" Condition="Exists('..\..\packages\OpenCV\build\$(__paket__OpenCV_targets).targets')" Label="Paket" />
+  <Import Project="..\..\packages\protobuf-v120\build\$(__paket__protobuf-v120_targets).targets" Condition="Exists('..\..\packages\protobuf-v120\build\$(__paket__protobuf-v120_targets).targets')" Label="Paket" />
 </Project>
